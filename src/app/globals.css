@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* 深色但非纯黑，提高对比与可读性 */
+    --background: #0f1115;
+    --foreground: #e5e7eb;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  /* 使用项目字体变量 */
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* 卡片与交互态 */
+.card {
+  @apply border border-white/10 rounded-lg bg-white/5;
+}
+.btn {
+  @apply rounded px-3 py-2 text-sm transition-colors;
+}
+.btn-primary {
+  @apply bg-foreground text-[#0f1115] hover:opacity-90;
+}
+.btn-ghost {
+  @apply border border-white/10 bg-white/5 text-foreground hover:bg-white/10;
+}
+
+/* 链接样式 */
+a:hover {
+  text-decoration: underline;
+}

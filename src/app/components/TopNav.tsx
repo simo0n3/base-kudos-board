@@ -11,25 +11,25 @@ export default function TopNav() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-background/80 backdrop-blur">
       <div className="mx-auto max-w-6xl px-3 sm:px-6 py-2 flex items-center justify-between gap-3">
-        <Link href="/" className="font-bold tracking-tight">
-          Base Kudos
+        <Link href="/" className="font-bold tracking-tight text-xl sm:text-2xl">
+          Kudos Tribe
         </Link>
         <nav className="hidden sm:flex items-center gap-3 text-sm">
           <Link className="hover:opacity-80" href="/">
-            首页
+            Home
           </Link>
           <Link className="hover:opacity-80" href="/communities">
-            社群
+            Communities
           </Link>
           <Link className="hover:opacity-80" href="/rankings">
-            排行榜
+            Rankings
           </Link>
           <Link className="hover:opacity-80" href="/notifications">
-            通知
+            Notifications
           </Link>
           {address && (
             <Link className="hover:opacity-80" href={`/u/${address}`}>
-              我的
+              Me
             </Link>
           )}
         </nav>

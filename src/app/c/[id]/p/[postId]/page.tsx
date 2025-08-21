@@ -22,10 +22,10 @@ export default function CommunityPostDetailPage() {
         `/api/communities/${communityId}/posts/${postId}?viewer=${address}`
       );
       const d = await res.json();
-      if (!res.ok) throw new Error(d?.error || "加载失败");
+      if (!res.ok) throw new Error(d?.error || "Load failed");
       setPost(d);
     } catch (e: any) {
-      setError(e?.message || "加载失败");
+      setError(e?.message || "Load failed");
     }
   };
 
@@ -38,7 +38,7 @@ export default function CommunityPostDetailPage() {
   }, [communityId, postId, address]);
 
   if (error) return <div className="p-6">{error}</div>;
-  if (!post) return <div className="p-6">加载中…</div>;
+  if (!post) return <div className="p-6">Loading…</div>;
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-4">
@@ -48,14 +48,14 @@ export default function CommunityPostDetailPage() {
           <Name />
         </Identity>
         <Link className="text-xs underline" href={`/c/${communityId}`}>
-          返回社群
+          Back to community
         </Link>
       </div>
       {post.title && <h2 className="text-xl font-semibold">{post.title}</h2>}
       {post.imageUrl && (
         <img
           src={post.imageUrl}
-          alt="图片"
+          alt="image"
           className="rounded w-full max-h-[540px] object-cover"
         />
       )}

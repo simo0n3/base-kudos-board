@@ -21,7 +21,7 @@ export default function RightHotCommunities() {
   return (
     <aside className="sticky top-[56px] h-fit pt-4">
       <div className="card p-4">
-        <h3 className="text-sm font-semibold mb-2">热门社群</h3>
+        <h3 className="text-sm font-semibold mb-2">Hot Communities</h3>
         <ul className="space-y-2 text-sm">
           {items.map((c: any) => (
             <li key={c.id} className="flex items-center justify-between gap-2">
@@ -34,7 +34,7 @@ export default function RightHotCommunities() {
                 <span className="truncate">{c.name}</span>
               </div>
               <Link className="underline text-xs" href={`/c/${c.id}`}>
-                进入
+                Enter
               </Link>
             </li>
           ))}

@@ -26,12 +26,14 @@ export default function CommunityDetailPage() {
   const onShare = async () => {
     try {
       const url = typeof window !== "undefined" ? window.location.href : "";
-      const text = comm?.name ? `来看看社群：${comm.name}` : "来看看这个社群";
+      const text = comm?.name
+        ? `Check out community: ${comm.name}`
+        : "Check out this community";
       if ((navigator as any)?.share) {
-        await (navigator as any).share({ title: "Base Kudos", text, url });
+        await (navigator as any).share({ title: "Kudos Tribe", text, url });
       } else if (navigator?.clipboard) {
         await navigator.clipboard.writeText(url);
-        alert("链接已复制");
+        alert("Link copied");
       }
     } catch {}
   };
@@ -74,11 +76,11 @@ export default function CommunityDetailPage() {
         }),
       });
       const jd = await jr.json();
-      if (!jr.ok) throw new Error(jd?.error || "加入失败");
-      setResult("加入/续费成功");
+      if (!jr.ok) throw new Error(jd?.error || "Join failed");
+      setResult("Joined / renewed successfully");
       load();
     } catch (e: any) {
-      setResult(e?.message || "加入失败");
+      setResult(e?.message || "Join failed");
     }
   };
 
@@ -91,7 +93,7 @@ export default function CommunityDetailPage() {
         fd.append("file", imageFile);
         const up = await fetch("/api/upload", { method: "POST", body: fd });
         const uj = await up.json();
-        if (!up.ok) throw new Error(uj?.error || "图片上传失败");
+        if (!up.ok) throw new Error(uj?.error || "Image upload failed");
         imageUrl = uj.url as string;
       }
       const raw = `BaseKudosCommunityPost|${address}|${communityId}|${title}|${content}`;
@@ -111,18 +113,18 @@ export default function CommunityDetailPage() {
         }),
       });
       const pd = await pr.json();
-      if (!pr.ok) throw new Error(pd?.error || "发布失败");
+      if (!pr.ok) throw new Error(pd?.error || "Post failed");
       setTitle("");
       setContent("");
       setImageFile(null);
       setImagePreview(null);
       load();
     } catch (e: any) {
-      setResult(e?.message || "发布失败");
+      setResult(e?.message || "Post failed");
     }
   };
 
-  if (!comm) return <div className="p-6">加载中…</div>;
+  if (!comm) return <div className="p-6">Loading…</div>;
 
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
@@ -130,10 +132,10 @@ export default function CommunityDetailPage() {
         <h1 className="text-2xl font-semibold">{comm.name}</h1>
         <div className="flex items-center gap-2">
           <button className="btn btn-ghost" onClick={onShare}>
-            分享
+            Share
           </button>
           <Link className="text-xs underline" href="/communities">
-            返回社群
+            Back to communities
           </Link>
         </div>
       </div>
@@ -146,13 +148,13 @@ export default function CommunityDetailPage() {
       )}
       <div className="text-sm opacity-70">{comm.desc}</div>
       <div className="text-sm opacity-80 flex items-center gap-3">
-        <span>价格：{comm.monthly_price_eth} ETH / 月</span>
-        <span>成员：{comm.active_member_count ?? 0}</span>
+        <span>Price: {comm.monthly_price_eth} ETH / month</span>
+        <span>Members: {comm.active_member_count ?? 0}</span>
         {comm.viewer_end_at && (
           <span>
-            到期：{new Date(comm.viewer_end_at).toLocaleString()}
+            Expire: {new Date(comm.viewer_end_at).toLocaleString()}
             {new Date(comm.viewer_end_at).getTime() < Date.now() && (
-              <span className="ml-1 text-red-400">(已过期)</span>
+              <span className="ml-1 text-red-400">(expired)</span>
             )}
           </span>
         )}
@@ -164,67 +166,82 @@ export default function CommunityDetailPage() {
           disabled={!isConnected || isPending}
           onClick={join}
         >
-          {isPending ? "支付中…" : "加入/续费"}
+          {isPending ? "Paying…" : "Join / Renew"}
         </button>
         {address?.toLowerCase() === comm.owner_address?.toLowerCase() && (
           <button
             className="rounded px-3 py-1 text-sm border hover:opacity-90"
             onClick={async () => {
-              if (!confirm("确认解散该社群？此操作不可恢复")) return;
+              if (
+                !confirm(
+                  "Disband this community? This action cannot be undone."
+                )
+              )
+                return;
               try {
                 const r = await fetch(`/api/communities/${communityId}`, {
                   method: "DELETE",
                   headers: { "x-user-address": String(address).toLowerCase() },
                 });
                 const j = await r.json();
-                if (!r.ok) throw new Error(j?.error || "解散失败");
+                if (!r.ok) throw new Error(j?.error || "Disband failed");
                 window.location.href = "/communities";
               } catch (e: any) {
-                setResult(e?.message || "解散失败");
+                setResult(e?.message || "Disband failed");
               }
             }}
           >
-            解散社群
+            Disband
           </button>
         )}
       </div>
 
-      {/* 未加入提示 */}
       {!isConnected && (
         <div className="card p-3 sm:p-4 text-sm">
-          未连接钱包，连接后可加入社群并查看私密内容。
+          Wallet not connected. Connect to join and view private posts.
         </div>
       )}
 
       <section className="space-y-2">
-        <h2 className="text-lg font-semibold">发帖（仅创建者）</h2>
+        <h2 className="text-lg font-semibold">Post (creator only)</h2>
         <input
           className="border rounded px-3 py-2 text-sm bg-white/5"
-          placeholder="标题（可选）"
+          placeholder="Title (optional)"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
         <textarea
           className="border rounded px-3 py-2 text-sm bg-white/5"
           rows={4}
-          placeholder="内容"
+          placeholder="Content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
         <div className="flex items-center gap-2">
           <input
+            id="community-image-input"
             type="file"
             accept="image/png,image/jpeg,image/webp,image/gif"
+            className="hidden"
             onChange={(e) => {
               const f = e.target.files?.[0] || null;
               setImageFile(f);
               setImagePreview(f ? URL.createObjectURL(f) : null);
             }}
           />
+          <label
+            htmlFor="community-image-input"
+            className="inline-flex items-center gap-2 rounded px-3 py-2 text-xs border hover:opacity-90 cursor-pointer"
+          >
+            Choose image
+          </label>
+          <span className="text-xs opacity-70 truncate max-w-[200px]">
+            {imageFile ? imageFile.name : "No image selected"}
+          </span>
           {imagePreview && (
             <img
               src={imagePreview}
-              alt="预览"
+              alt="preview"
               className="h-16 w-16 object-cover rounded"
             />
           )}
@@ -234,14 +251,14 @@ export default function CommunityDetailPage() {
           disabled={!isConnected}
           onClick={post}
         >
-          发布
+          Publish
         </button>
       </section>
 
       {result && <p className="text-sm opacity-80">{result}</p>}
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">社群动态</h2>
+        <h2 className="text-lg font-semibold">Community feed</h2>
         <ul className="space-y-3">
           {feed.map((p) => (
             <li key={p.id} className="border rounded p-3">
@@ -257,7 +274,7 @@ export default function CommunityDetailPage() {
               {p.imageUrl && (
                 <img
                   src={p.imageUrl}
-                  alt="图片"
+                  alt="image"
                   className="mt-2 rounded w-full max-h-64 object-cover"
                 />
               )}
@@ -267,7 +284,7 @@ export default function CommunityDetailPage() {
                 className="underline text-sm mt-2 inline-block"
                 href={`/c/${communityId}/p/${p.id}`}
               >
-                查看详情
+                View details
               </Link>
             </li>
           ))}

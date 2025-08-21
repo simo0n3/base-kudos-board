@@ -44,22 +44,23 @@ export default function NotificationsPage() {
     load();
   };
 
-  if (!isConnected) return <div className="p-6">请先连接钱包</div>;
+  if (!isConnected)
+    return <div className="p-6">Please connect your wallet</div>;
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">通知</h1>
+        <h1 className="text-2xl font-semibold">Notifications</h1>
         <button
           className="rounded px-3 py-1 text-sm border hover:opacity-80"
           onClick={markRead}
           disabled={loading}
         >
-          标记已读
+          Mark as read
         </button>
       </div>
       {items.length === 0 ? (
-        <div className="opacity-70 text-sm">暂无通知</div>
+        <div className="opacity-70 text-sm">No notifications</div>
       ) : (
         <ul className="space-y-3">
           {items.map((n) => (
@@ -70,7 +71,7 @@ export default function NotificationsPage() {
                 </span>
                 {!n.is_read && (
                   <span className="text-xs px-2 py-0.5 rounded bg-foreground text-background">
-                    未读
+                    Unread
                   </span>
                 )}
               </div>
@@ -85,13 +86,13 @@ export default function NotificationsPage() {
 
 function renderContent(n: Noti) {
   if (n.type === "like")
-    return `收到点赞：来自 ${n.payload?.from?.slice?.(0, 6)}… 的点赞`;
+    return `Received like from ${n.payload?.from?.slice?.(0, 6)}…`;
   if (n.type === "tip")
-    return `收到打赏：${n.payload?.amount} ${
+    return `Received tip: ${n.payload?.amount} ${
       n.payload?.token
-    }，来自 ${n.payload?.from?.slice?.(0, 6)}…`;
-  if (n.type === "comment") return `新评论：${n.payload?.content}`;
+    } from ${n.payload?.from?.slice?.(0, 6)}…`;
+  if (n.type === "comment") return `New comment: ${n.payload?.content}`;
   if (n.type === "follow")
-    return `新关注：${n.payload?.follower?.slice?.(0, 6)}… 关注了你`;
+    return `New follower: ${n.payload?.follower?.slice?.(0, 6)}… followed you`;
   return `${n.type}`;
 }

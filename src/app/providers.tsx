@@ -14,8 +14,8 @@ type AppProvidersProps = {
 const wagmiConfig = createConfig({
   chains: [base, baseSepolia],
   connectors: [
-    coinbaseWallet({ appName: "Base Kudos", preference: "all" }),
-    baseAccount({ appName: "Base Kudos" }),
+    coinbaseWallet({ appName: "Kudos Tribe", preference: "all" }),
+    baseAccount({ appName: "Kudos Tribe" }),
   ],
   transports: {
     [base.id]: http(),
@@ -33,7 +33,7 @@ export default function AppProviders({ children }: AppProvidersProps) {
         <OnchainKitProvider
           chain={baseSepolia}
           config={{
-            appearance: { name: "Base Kudos", mode: "auto", theme: "default" },
+            appearance: { name: "Kudos Tribe", mode: "auto", theme: "default" },
             wallet: { display: "modal" },
           }}
         >

@@ -27,10 +27,10 @@ function SearchContent() {
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
         const data = await res.json();
-        if (!res.ok) throw new Error(data?.error || "搜索失败");
+        if (!res.ok) throw new Error(data?.error || "Search failed");
         setItems(data.items || []);
       } catch (e: any) {
-        setError(e?.message || "搜索失败");
+        setError(e?.message || "Search failed");
       } finally {
         setLoading(false);
       }
@@ -39,9 +39,9 @@ function SearchContent() {
 
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-4">
-      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">搜索</h1>
-      <p className="text-sm opacity-70">关键词：{q || "(空)"}</p>
-      {loading && <div className="text-sm opacity-80">搜索中…</div>}
+      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Search</h1>
+      <p className="text-sm opacity-70">Keyword: {q || "(empty)"}</p>
+      {loading && <div className="text-sm opacity-80">Searching…</div>}
       {error && <div className="text-sm opacity-80">{error}</div>}
       {!loading && !error && (
         <ul className="space-y-4">
@@ -63,14 +63,14 @@ function SearchContent() {
                 {m.imageUrl && (
                   <img
                     src={m.imageUrl}
-                    alt="图片"
+                    alt="image"
                     className="w-full max-h-[420px] object-cover rounded mb-3"
                   />
                 )}
               </div>
               {m.isPaid && (
                 <p className="text-xs opacity-70">
-                  付费内容 · 价格 {m.priceEth} ETH
+                  Paid content · Price {m.priceEth} ETH
                 </p>
               )}
               {m.title && (
@@ -78,7 +78,7 @@ function SearchContent() {
               )}
               {m.isPaid ? (
                 <p className="text-base whitespace-pre-wrap leading-relaxed text-gray-400 italic">
-                  该内容为付费内容，点击查看详情解锁。
+                  This post is paid; open details to unlock.
                 </p>
               ) : (
                 <p className="text-base whitespace-pre-wrap leading-relaxed">
@@ -86,11 +86,13 @@ function SearchContent() {
                 </p>
               )}
               <Link className="underline text-sm" href={`/m/${m.id}`}>
-                查看详情
+                View details
               </Link>
             </li>
           ))}
-          {items.length === 0 && <li className="text-sm opacity-70">无结果</li>}
+          {items.length === 0 && (
+            <li className="text-sm opacity-70">No results</li>
+          )}
         </ul>
       )}
     </div>
@@ -99,7 +101,7 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="max-w-3xl mx-auto p-6">加载中…</div>}>
+    <Suspense fallback={<div className="max-w-3xl mx-auto p-6">Loading…</div>}>
       <SearchContent />
     </Suspense>
   );

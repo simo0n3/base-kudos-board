@@ -17,7 +17,7 @@ export default function GuideCard() {
   return (
     <div className="card p-3 sm:p-4 text-sm">
       <div className="flex items-center justify-between mb-1">
-        <h3 className="font-semibold">新手引导</h3>
+        <h3 className="font-semibold">Quick Guide</h3>
         <button
           className="text-xs underline"
           onClick={() => {
@@ -27,13 +27,13 @@ export default function GuideCard() {
             setDismissed(true);
           }}
         >
-          关闭
+          Dismiss
         </button>
       </div>
       <ul className="list-disc pl-5 space-y-1 opacity-90">
-        <li>打赏会实时累计在帖子下方</li>
-        <li>付费内容：支付后自动解锁查看</li>
-        <li>社群：按月加入，成员可查看私密动态</li>
+        <li>Tips accumulate in real time under posts</li>
+        <li>Paid posts unlock automatically after payment</li>
+        <li>Communities: join monthly to view private feed</li>
       </ul>
     </div>
   );

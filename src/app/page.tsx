@@ -30,16 +30,16 @@ export default function Home() {
         ]);
         const j1 = await r1.json();
         const j2 = await r2.json();
-        if (!r1.ok) throw new Error(j1?.error || "加载失败");
+        if (!r1.ok) throw new Error(j1?.error || "Load failed");
         setData(j1);
         if (r2.ok) setHotComms(j2.items || []);
       } catch (e: any) {
-        setError(e?.message || "加载失败");
+        setError(e?.message || "Load failed");
       }
     })();
   }, []);
 
-  // 自动加载更多（滚动触底）
+  // Auto load more (infinite scroll)
   useEffect(() => {
     if (!data || !data.topMessages?.length) return;
     const node = sentinelRef.current;
@@ -60,27 +60,27 @@ export default function Home() {
         {/* Left nav */}
         <aside className="md:col-span-2 mt-2 sm:mt-3 order-1">
           <div className="card p-3 sm:p-4 space-y-2">
-            <h2 className="text-sm font-semibold">导航</h2>
+            <h2 className="text-sm font-semibold">Navigation</h2>
             <div className="flex flex-col gap-2">
               <Link className="btn btn-ghost" href="/mini">
-                发布
+                Post
               </Link>
               <Link className="btn btn-ghost" href="/communities">
-                社群
+                Communities
               </Link>
               <Link className="btn btn-ghost" href="/rankings">
-                排行榜
+                Rankings
               </Link>
               <Link className="btn btn-ghost" href="/notifications">
-                通知
+                Notifications
               </Link>
               {isConnected ? (
                 <Link className="btn btn-ghost" href={`/u/${address}`}>
-                  我的主页
+                  My profile
                 </Link>
               ) : (
                 <button className="btn opacity-60 cursor-not-allowed" disabled>
-                  连接后查看我的主页
+                  Connect wallet to view my profile
                 </button>
               )}
             </div>
@@ -89,25 +89,25 @@ export default function Home() {
 
         {/* Center content */}
         <main className="md:col-span-8 space-y-6 min-w-0 order-2">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            Base Kudos Board
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+            Kudos Tribe
           </h1>
           <SearchBar />
 
           {!isConnected && (
             <div className="card p-3 sm:p-4 text-sm">
-              未连接钱包，部分功能需要连接后使用。
+              Wallet not connected. Some features require connection.
             </div>
           )}
           {error && <div className="p-2 text-sm opacity-80">{error}</div>}
           {!data && !error && (
-            <div className="p-2 text-sm opacity-80">加载中…</div>
+            <div className="p-2 text-sm opacity-80">Loading…</div>
           )}
 
           {data && data.topMessages?.length > 0 ? (
             <section className="space-y-3">
               <h2 className="text-lg sm:text-xl font-semibold mb-1">
-                Top 留言
+                Top Messages
               </h2>
               <ul className="space-y-4">
                 {data.topMessages.slice(0, visibleCount).map((m) => (
@@ -127,18 +127,18 @@ export default function Home() {
                     {m.imageUrl && (
                       <img
                         src={m.imageUrl}
-                        alt="图片"
+                        alt="image"
                         className="rounded-md w-full max-h-56 object-contain max-w-[720px] mx-auto"
                       />
                     )}
                     {m.isPaid && (
                       <span className="inline-block text-xs px-2 py-0.5 rounded bg-white/10">
-                        付费内容 · 价格 {m.priceEth} ETH
+                        Paid content · Price {m.priceEth} ETH
                       </span>
                     )}
                     {m.isPaid ? (
                       <p className="text-sm whitespace-pre-wrap leading-7 text-gray-400 italic">
-                        该内容为付费内容，点击下方详情解锁查看。
+                        This post is paid; open details below to unlock.
                       </p>
                     ) : (
                       <p className="text-sm whitespace-pre-wrap leading-7">
@@ -147,11 +147,11 @@ export default function Home() {
                     )}
                     <div className="flex items-center gap-3 text-xs opacity-80 pt-2 border-t border-white/10">
                       <span>
-                        打赏 {m.tipTotal} ETH（{m.tipCount} 次）
+                        Tips {m.tipTotal} ETH ({m.tipCount} times)
                       </span>
-                      <span>赞 {m.likeCount}</span>
+                      <span>Likes {m.likeCount}</span>
                       <Link className="underline ml-auto" href={`/m/${m.id}`}>
-                        评论 / 详情
+                        Comments / Details
                       </Link>
                     </div>
                   </li>
@@ -163,11 +163,11 @@ export default function Home() {
             </section>
           ) : (
             <div className="card p-3 sm:p-4 text-sm">
-              暂无帖子，去
+              No posts yet. Go
               <Link className="underline mx-1" href="/mini">
-                发布
+                post
               </Link>
-              一条吧
+              one!
             </div>
           )}
         </main>
@@ -176,9 +176,9 @@ export default function Home() {
         <aside className="space-y-3 mt-2 sm:mt-3 md:col-span-2 order-3">
           <GuideCard />
           <div className="card p-3 sm:p-4">
-            <h2 className="text-sm font-semibold mb-2">Top 作者</h2>
+            <h2 className="text-sm font-semibold mb-2">Top Authors</h2>
             {!data ? (
-              <div className="text-xs opacity-70">加载中…</div>
+              <div className="text-xs opacity-70">Loading…</div>
             ) : (
               <ul className="space-y-3">
                 {data.topAuthors.map((a) => (
@@ -194,12 +194,12 @@ export default function Home() {
                         className="text-xs underline shrink-0"
                         href={`/u/${a.author}`}
                       >
-                        查看
+                        View
                       </Link>
                     </div>
                     <div className="text-xs opacity-80 mt-1">
-                      帖子：{a.postCount} · 打赏：
-                      {a.tipTotal.toFixed?.(6) ?? a.tipTotal} ETH · 赞：
+                      Posts: {a.postCount} · Tips:{" "}
+                      {a.tipTotal.toFixed?.(6) ?? a.tipTotal} ETH · Likes:{" "}
                       {a.likeCount}
                     </div>
                   </li>
@@ -209,11 +209,11 @@ export default function Home() {
           </div>
 
           <div className="card p-3 sm:p-4">
-            <h2 className="text-sm font-semibold mb-2">Top 社群</h2>
+            <h2 className="text-sm font-semibold mb-2">Top Communities</h2>
             {!hotComms ? (
-              <div className="text-xs opacity-70">加载中…</div>
+              <div className="text-xs opacity-70">Loading…</div>
             ) : hotComms.length === 0 ? (
-              <div className="text-xs opacity-70">暂无数据</div>
+              <div className="text-xs opacity-70">No data</div>
             ) : (
               <ul className="space-y-2 text-sm">
                 {hotComms.map((c: any) => (
@@ -224,14 +224,14 @@ export default function Home() {
                     <div className="min-w-0">
                       <div className="truncate">{c.name}</div>
                       <div className="text-[11px] opacity-70">
-                        已加入 {c.member_count ?? 0} 人
+                        Joined {c.member_count ?? 0}
                       </div>
                     </div>
                     <Link
                       className="text-xs underline shrink-0"
                       href={`/c/${c.id}`}
                     >
-                      进入
+                      Enter
                     </Link>
                   </li>
                 ))}
@@ -257,12 +257,12 @@ function SearchBar() {
     >
       <input
         className="flex-1 border rounded px-3 py-2 text-sm bg-background text-foreground placeholder:opacity-70"
-        placeholder="搜索内容或 0x 地址前缀"
+        placeholder="Search text or 0x prefix"
         value={q}
         onChange={(e) => setQ(e.target.value)}
       />
       <button className="btn btn-primary" type="submit">
-        搜索
+        Search
       </button>
     </form>
   );

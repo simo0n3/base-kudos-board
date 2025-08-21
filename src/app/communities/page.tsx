@@ -15,6 +15,7 @@ export default function CommunitiesPage() {
   const [price, setPrice] = useState("0.01");
   const [creating, setCreating] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [coverName, setCoverName] = useState<string | null>(null);
   const fetchedRef = useRef(false);
 
   const load = async (query = "") => {
@@ -36,7 +37,7 @@ export default function CommunitiesPage() {
     setCreating(true);
     setResult(null);
     try {
-      // 可选头像上传
+      // Optional avatar upload
       let imageUrl: string | undefined = undefined;
       const fileEl = document.getElementById(
         "community-cover"
@@ -47,7 +48,7 @@ export default function CommunitiesPage() {
         fd.append("file", file);
         const up = await fetch("/api/upload", { method: "POST", body: fd });
         const uj = await up.json();
-        if (!up.ok) throw new Error(uj?.error || "头像上传失败");
+        if (!up.ok) throw new Error(uj?.error || "Avatar upload failed");
         imageUrl = uj.url as string;
       }
 
@@ -69,15 +70,15 @@ export default function CommunitiesPage() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "创建失败");
-      setResult("创建成功");
+      if (!res.ok) throw new Error(data?.error || "Create failed");
+      setResult("Created successfully");
       setName("");
       setDesc("");
       setPrice("0.01");
       fileEl && (fileEl.value = "");
       load("");
     } catch (e: any) {
-      setResult(e?.message || "创建失败");
+      setResult(e?.message || "Create failed");
     } finally {
       setCreating(false);
     }
@@ -86,7 +87,7 @@ export default function CommunitiesPage() {
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">社群</h1>
+        <h1 className="text-2xl font-semibold">Communities</h1>
         <Identity address={address ?? undefined} chain={baseChain}>
           <Avatar className="h-6 w-6" />
           <Name />
@@ -102,36 +103,49 @@ export default function CommunitiesPage() {
       >
         <input
           className="flex-1 border rounded px-3 py-2 text-sm bg-white/5"
-          placeholder="搜索社群"
+          placeholder="Search communities"
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
         <button className="rounded px-3 py-2 text-sm bg-foreground text-background">
-          搜索
+          Search
         </button>
       </form>
 
       <div className="space-y-2">
-        <h2 className="text-lg font-semibold">创建社群</h2>
+        <h2 className="text-lg font-semibold">Create a community</h2>
         <div className="grid gap-2">
           <input
             className="border rounded px-3 py-2 text-sm bg-white/5"
-            placeholder="名称"
+            placeholder="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <input
             className="border rounded px-3 py-2 text-sm bg-white/5"
-            placeholder="简介（可选）"
+            placeholder="Description (optional)"
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
           />
-          <div className="text-xs opacity-80">社群头像（可选）</div>
+          <div className="text-xs opacity-80">Community avatar (optional)</div>
           <input
             id="community-cover"
             type="file"
             accept="image/png,image/jpeg,image/webp,image/gif"
+            className="hidden"
+            onChange={(e) => setCoverName(e.target.files?.[0]?.name ?? null)}
           />
+          <label
+            htmlFor="community-cover"
+            className="inline-flex w-fit items-center gap-2 rounded px-3 py-2 text-xs border hover:opacity-90 cursor-pointer"
+          >
+            Choose image
+          </label>
+          <div className="flex items-center gap-2">
+            <span className="text-xs opacity-70 truncate max-w-[260px]">
+              {coverName || "No image selected"}
+            </span>
+          </div>
           <div className="flex items-center gap-2">
             <input
               className="border rounded px-3 py-2 text-sm bg-white/5 w-32"
@@ -141,27 +155,27 @@ export default function CommunitiesPage() {
               value={price}
               onChange={(e) => setPrice(e.target.value)}
             />
-            <span className="text-sm opacity-70">ETH / 月</span>
+            <span className="text-sm opacity-70">ETH / month</span>
           </div>
           <button
             disabled={!isConnected || creating}
             className="rounded px-3 py-2 text-sm bg-foreground text-[#0f1115]"
             onClick={create}
           >
-            创建
+            Create
           </button>
           {result && <p className="text-sm opacity-80">{result}</p>}
         </div>
       </div>
 
       <div className="space-y-3">
-        <h2 className="text-lg font-semibold">社群列表</h2>
+        <h2 className="text-lg font-semibold">Community list</h2>
         <ul className="space-y-3">
           {items.map((c) => (
             <li key={c.id} className="border rounded p-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 min-w-0">
-                  {/* 显示头像 */}
+                  {/* Avatar */}
                   {c.image_url && (
                     <img
                       src={c.image_url}
@@ -179,11 +193,11 @@ export default function CommunitiesPage() {
                   </div>
                 </div>
                 <div className="text-xs opacity-70">
-                  {c.monthly_price_eth} ETH / 月
+                  {c.monthly_price_eth} ETH / month
                 </div>
               </div>
               <Link className="underline text-sm" href={`/c/${c.id}`}>
-                进入
+                Enter
               </Link>
             </li>
           ))}

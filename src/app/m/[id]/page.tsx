@@ -45,16 +45,16 @@ export default function MessageDetailPage() {
     if (!messageId) return;
     if (fetchedRef.current === messageId) return;
     fetchedRef.current = messageId;
-    setPurchased(false); // 切换帖子时先重置解锁状态，防止沿用上一个帖子的状态
+    setPurchased(false); // Reset unlock state when switching posts to avoid carrying over
     load();
   }, [messageId]);
 
-  // 切换地址时也重置，等待新地址的解锁校验结果
+  // Also reset when switching address to wait for new unlock check
   useEffect(() => {
     setPurchased(false);
   }, [address]);
 
-  // 切换地址或再次进入页面时，按打赏总额重新检查解锁状态
+  // Re-check unlock status based on total tips when address or page changes
   useEffect(() => {
     (async () => {
       if (!address || !messageId) return;
@@ -70,7 +70,7 @@ export default function MessageDetailPage() {
     })();
   }, [address, messageId, msg?.priceEth]);
 
-  if (!msg) return <div className="p-6">加载中…</div>;
+  if (!msg) return <div className="p-6">Loading…</div>;
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-4">
@@ -80,7 +80,7 @@ export default function MessageDetailPage() {
           <Name />
         </Identity>
         <Link className="text-xs underline" href="/">
-          返回首页
+          Back to home
         </Link>
       </div>
       {msg.title && (
@@ -89,7 +89,7 @@ export default function MessageDetailPage() {
       {msg.imageUrl && (
         <img
           src={msg.imageUrl}
-          alt="图片"
+          alt="image"
           className="rounded w-full max-h-[540px] object-cover"
         />
       )}
@@ -128,18 +128,18 @@ export default function MessageDetailPage() {
                 body: JSON.stringify({ address, messageId, signature: sig }),
               });
               const data = await res.json();
-              if (!res.ok) throw new Error(data?.error || "点赞失败");
+              if (!res.ok) throw new Error(data?.error || "Like failed");
               const lr = await fetch(`/api/likes?messageId=${messageId}`);
               const ld = await lr.json();
               setLikeCount(ld.count ?? 0);
             } catch (e: any) {
-              setResult(e?.message || "点赞失败");
+              setResult(e?.message || "Like failed");
             }
           }}
         >
-          点赞
+          Like
         </button>
-        <span className="text-xs opacity-70">{likeCount} 赞</span>
+        <span className="text-xs opacity-70">{likeCount} likes</span>
       </div>
 
       {isConnected && address?.toLowerCase() !== msg.address.toLowerCase() && (
@@ -159,7 +159,7 @@ export default function MessageDetailPage() {
             onClick={async () => {
               const amt = parseFloat(amount || "0.001");
               if (!amt || amt <= 0) {
-                setResult("请输入正确金额");
+                setResult("Please input a valid amount");
                 return;
               }
               try {
@@ -180,13 +180,13 @@ export default function MessageDetailPage() {
                     chainId: 84532,
                   }),
                 });
-                setResult(`打赏成功，tx ${hash}`);
-                // 通知本页的小计刷新
+                setResult(`Tip sent, tx ${hash}`);
+                // Notify summary refresh on this page
                 const evt = new CustomEvent("tips-updated", {
                   detail: { messageId },
                 });
                 window.dispatchEvent(evt);
-                // 若为付费内容，则在打赏后自动检查是否已达解锁阈值
+                // For paid posts, auto-check unlock threshold after tipping
                 if (
                   msg.isPaid &&
                   address?.toLowerCase() !== msg.address.toLowerCase()
@@ -199,15 +199,15 @@ export default function MessageDetailPage() {
                   const paid = parseFloat(String(pd.buyerTotalEth || 0)) || 0;
                   if (paid >= need && need > 0) {
                     setPurchased(true);
-                    setResult(`已解锁，tx ${hash}`);
+                    setResult(`Unlocked, tx ${hash}`);
                   }
                 }
               } catch (e: any) {
-                setResult(e?.message || "打赏失败");
+                setResult(e?.message || "Tip failed");
               }
             }}
           >
-            打赏
+            Tip
           </button>
         </div>
       )}
@@ -236,7 +236,7 @@ function Paywall({
 
   return (
     <div className="border border-white/10 rounded p-3 bg-white/5 space-y-2">
-      <p className="text-sm">该内容需付费解锁：{priceEth} ETH</p>
+      <p className="text-sm">This content requires payment: {priceEth} ETH</p>
       <button
         className="rounded px-3 py-2 text-sm bg-foreground text-[#0f1115] hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
         disabled={!isConnected || isPending}
@@ -247,7 +247,7 @@ function Paywall({
               to: seller,
               value: parseEther(String(priceEth || "0.001")),
             });
-            // 写入一条打赏记录用于统一统计与解锁判断
+            // Write a tip record to unify stats and unlock checks
             await fetch(`/api/tips`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -261,7 +261,7 @@ function Paywall({
                 chainId: 84532,
               }),
             });
-            // 再次检查解锁状态
+            // Recheck unlock status
             const pr = await fetch(
               `/api/tips?messageId=${messageId}&buyer=${address}`
             );
@@ -270,18 +270,18 @@ function Paywall({
             const paid = parseFloat(String(pd.buyerTotalEth || 0)) || 0;
             if (paid >= need && need > 0) {
               onPurchased();
-              // 通知本页的小计刷新
+              // Notify summary refresh on this page
               const evt = new CustomEvent("tips-updated", {
                 detail: { messageId },
               });
               window.dispatchEvent(evt);
             }
           } catch (e: any) {
-            setErr(e?.message || "支付失败");
+            setErr(e?.message || "Payment failed");
           }
         }}
       >
-        支付解锁
+        Pay to unlock
       </button>
       {err && <p className="text-xs opacity-80">{err}</p>}
     </div>
@@ -314,7 +314,8 @@ function TipsSummary({ messageId }: { messageId: string }) {
   if (!summary) return null;
   return (
     <p className="text-xs opacity-80">
-      已获得打赏：{summary.totalAmountEth} ETH（{summary.totalCount} 次）
+      Total tips received: {summary.totalAmountEth} ETH ({summary.totalCount}{" "}
+      times)
     </p>
   );
 }
@@ -354,7 +355,7 @@ function Comments({ messageId }: { messageId: string }) {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "评论失败");
+      if (!res.ok) throw new Error(data?.error || "Comment failed");
       setVal("");
       load();
     } finally {
@@ -364,18 +365,18 @@ function Comments({ messageId }: { messageId: string }) {
 
   return (
     <div className="space-y-2">
-      <h3 className="text-lg font-semibold mt-4">评论</h3>
+      <h3 className="text-lg font-semibold mt-4">Comments</h3>
       <ul className="space-y-2">
         {items.map((c) => (
           <li key={c.id} className="text-xs">
-            {c.address.slice(0, 6)}…{c.address.slice(-4)}：{c.content}
+            {c.address.slice(0, 6)}…{c.address.slice(-4)}: {c.content}
           </li>
         ))}
       </ul>
       <div className="flex items-center gap-2">
         <input
           className="flex-1 border rounded px-2 py-1 text-xs bg-background text-foreground placeholder:opacity-70"
-          placeholder="写下评论…"
+          placeholder="Write a comment…"
           value={val}
           onChange={(e) => setVal(e.target.value)}
         />
@@ -384,7 +385,7 @@ function Comments({ messageId }: { messageId: string }) {
           disabled={!isConnected || !val.trim() || loading}
           onClick={submit}
         >
-          发送
+          Send
         </button>
       </div>
     </div>

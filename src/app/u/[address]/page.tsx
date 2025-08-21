@@ -18,12 +18,12 @@ export default function UserPage() {
   const onShare = async () => {
     try {
       const url = typeof window !== "undefined" ? window.location.href : "";
-      const text = `来看看 @${address} 的主页`;
+      const text = `Check out @${address}'s profile`;
       if ((navigator as any)?.share) {
-        await (navigator as any).share({ title: "Base Kudos", text, url });
+        await (navigator as any).share({ title: "Kudos Tribe", text, url });
       } else if (navigator?.clipboard) {
         await navigator.clipboard.writeText(url);
-        alert("链接已复制");
+        alert("Link copied");
       }
     } catch {}
   };
@@ -34,10 +34,10 @@ export default function UserPage() {
       try {
         const res = await fetch(`/api/u/${address}`);
         const json = await res.json();
-        if (!res.ok) throw new Error(json?.error || "加载失败");
+        if (!res.ok) throw new Error(json?.error || "Load failed");
         setProfile(json);
       } catch (e: any) {
-        setError(e?.message || "加载失败");
+        setError(e?.message || "Load failed");
       }
     })();
   }, [address]);
@@ -54,7 +54,7 @@ export default function UserPage() {
   }, [address, me]);
 
   if (error) return <div className="p-6">{error}</div>;
-  if (!profile) return <div className="p-6">加载中…</div>;
+  if (!profile) return <div className="p-6">Loading…</div>;
 
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
@@ -65,11 +65,11 @@ export default function UserPage() {
         </Identity>
         <div className="flex items-center gap-3">
           <div className="text-sm opacity-70">
-            帖子 {profile.postCount} · 获赞 {profile.likeCount} · 打赏{" "}
-            {profile.tipTotal} ETH（{profile.tipCount} 次）
+            Posts {profile.postCount} · Likes {profile.likeCount} · Tips{" "}
+            {profile.tipTotal} ETH ({profile.tipCount} times)
           </div>
           <button className="btn btn-ghost" onClick={onShare}>
-            分享
+            Share
           </button>
         </div>
       </div>
@@ -97,18 +97,18 @@ export default function UserPage() {
                   }),
                 });
                 const json = await res.json();
-                if (!res.ok) throw new Error(json?.error || "操作失败");
+                if (!res.ok) throw new Error(json?.error || "Action failed");
                 setFollowing(!following);
               } catch (e) {
                 console.error(e);
               }
             }}
           >
-            {following ? "取消关注" : "关注"}
+            {following ? "Unfollow" : "Follow"}
           </button>
         </div>
       )}
-      <h2 className="text-lg font-semibold">我的留言</h2>
+      <h2 className="text-lg font-semibold">My Posts</h2>
       <ul className="space-y-3">
         {(showAllMsgs
           ? profile.messages
@@ -118,13 +118,13 @@ export default function UserPage() {
             {m.imageUrl && (
               <img
                 src={m.imageUrl}
-                alt="图片"
+                alt="image"
                 className="rounded w-full max-h-64 object-cover mb-2"
               />
             )}
             {m.isPaid && (
               <p className="text-xs opacity-70">
-                付费内容 · 价格 {m.priceEth} ETH
+                Paid content · Price {m.priceEth} ETH
               </p>
             )}
             {m.title && (
@@ -139,13 +139,13 @@ export default function UserPage() {
                 className="underline text-sm inline-block"
                 href={`/m/${m.id}`}
               >
-                查看详情
+                View details
               </Link>
               {isConnected && me?.toLowerCase() === address && (
                 <button
                   className="text-xs px-2 py-1 rounded border hover:opacity-90"
                   onClick={async () => {
-                    if (!confirm("确认删除该留言？")) return;
+                    if (!confirm("Confirm deletion?")) return;
                     try {
                       const res = await fetch(`/api/messages/${m.id}`, {
                         method: "DELETE",
@@ -154,8 +154,9 @@ export default function UserPage() {
                         },
                       });
                       const json = await res.json();
-                      if (!res.ok) throw new Error(json?.error || "删除失败");
-                      // 重新加载个人资料
+                      if (!res.ok)
+                        throw new Error(json?.error || "Delete failed");
+                      // Reload profile
                       const r = await fetch(`/api/u/${address}`);
                       const j = await r.json();
                       if (r.ok) {
@@ -163,11 +164,11 @@ export default function UserPage() {
                       }
                     } catch (e) {
                       console.error(e);
-                      alert((e as any)?.message || "删除失败");
+                      alert((e as any)?.message || "Delete failed");
                     }
                   }}
                 >
-                  删除
+                  Delete
                 </button>
               )}
             </div>
@@ -180,14 +181,14 @@ export default function UserPage() {
             className="text-xs underline"
             onClick={() => setShowAllMsgs((v) => !v)}
           >
-            {showAllMsgs ? "收起" : "显示更多"}
+            {showAllMsgs ? "Collapse" : "Show more"}
           </button>
         </div>
       )}
 
       {isConnected && me?.toLowerCase() === address && (
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold">我解锁过的内容</h2>
+          <h2 className="text-lg font-semibold">Unlocked Content</h2>
           {profile.unlocked?.length ? (
             <ul className="space-y-3">
               {profile.unlocked.map((m: any) => (
@@ -195,13 +196,13 @@ export default function UserPage() {
                   {m.imageUrl && (
                     <img
                       src={m.imageUrl}
-                      alt="图片"
+                      alt="image"
                       className="rounded w-full max-h-64 object-cover mb-2"
                     />
                   )}
                   {m.isPaid && (
                     <p className="text-xs opacity-70">
-                      付费内容 · 价格 {m.priceEth} ETH
+                      Paid content · Price {m.priceEth} ETH
                     </p>
                   )}
                   {m.title && (
@@ -217,19 +218,19 @@ export default function UserPage() {
                     className="underline text-sm mt-1 inline-block"
                     href={`/m/${m.id}`}
                   >
-                    查看详情
+                    View details
                   </Link>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm opacity-70">暂无</p>
+            <p className="text-sm opacity-70">None</p>
           )}
         </section>
       )}
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">我创建的社群</h2>
+        <h2 className="text-lg font-semibold">Communities I Created</h2>
         {profile.createdCommunities?.length ? (
           <ul className="space-y-3">
             {profile.createdCommunities.map((c: any) => (
@@ -240,22 +241,22 @@ export default function UserPage() {
                     <div className="text-xs opacity-70">{c.desc}</div>
                   </div>
                   <div className="text-xs opacity-70">
-                    {c.monthlyPriceEth} ETH / 月
+                    {c.monthlyPriceEth} ETH / month
                   </div>
                 </div>
-                <Link className="underline text-sm" href={`/c/${c.id}`}>
-                  进入
+                <Link className="underline text sm" href={`/c/${c.id}`}>
+                  Enter
                 </Link>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-sm opacity-70">暂无</p>
+          <p className="text-sm opacity-70">None</p>
         )}
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">我加入的社群</h2>
+        <h2 className="text-lg font-semibold">Communities I Joined</h2>
         {profile.joinedCommunities?.length ? (
           <ul className="space-y-3">
             {profile.joinedCommunities.map((c: any) => (
@@ -266,17 +267,17 @@ export default function UserPage() {
                     <div className="text-xs opacity-70">{c.desc}</div>
                   </div>
                   <div className="text-xs opacity-70">
-                    {c.monthlyPriceEth} ETH / 月
+                    {c.monthlyPriceEth} ETH / month
                   </div>
                 </div>
                 <Link className="underline text-sm" href={`/c/${c.id}`}>
-                  进入
+                  Enter
                 </Link>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-sm opacity-70">暂无</p>
+          <p className="text-sm opacity-70">None</p>
         )}
       </section>
     </div>

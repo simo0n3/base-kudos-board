@@ -24,12 +24,12 @@ export default function LeftNav() {
   return (
     <aside className="sticky top-[56px] h-[calc(100dvh-56px)] pt-4">
       <nav className="flex flex-col gap-1 text-sm">
-        <NavItem href="/" label="首页" />
-        <NavItem href="/communities" label="社群" />
-        <NavItem href="/rankings" label="排行榜" />
-        <NavItem href="/notifications" label="通知" />
-        {address && <NavItem href={`/u/${address}`} label="我的主页" />}
-        <NavItem href="/mini" label="发布留言" />
+        <NavItem href="/" label="Home" />
+        <NavItem href="/communities" label="Communities" />
+        <NavItem href="/rankings" label="Rankings" />
+        <NavItem href="/notifications" label="Notifications" />
+        {address && <NavItem href={`/u/${address}`} label="My Profile" />}
+        <NavItem href="/mini" label="Post" />
       </nav>
     </aside>
   );

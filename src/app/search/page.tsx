@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Identity, Name, Avatar } from "@coinbase/onchainkit/identity";
 import { base as baseChain } from "wagmi/chains";
 
-export default function SearchPage() {
+function SearchContent() {
   const sp = useSearchParams();
   const q = sp.get("q") || "";
   const [items, setItems] = useState<any[]>([]);
@@ -94,5 +94,13 @@ export default function SearchPage() {
         </ul>
       )}
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="max-w-3xl mx-auto p-6">加载中…</div>}>
+      <SearchContent />
+    </Suspense>
   );
 }

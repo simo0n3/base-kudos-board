@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { useAccount, useSendTransaction } from "wagmi";
+import { useAccount, useSendTransaction, useWriteContract } from "wagmi";
 import { parseEther } from "viem";
 import { Identity, Name, Avatar } from "@coinbase/onchainkit/identity";
 import { base as baseChain } from "wagmi/chains";
@@ -232,7 +232,23 @@ function Paywall({
 }) {
   const { address, isConnected } = useAccount();
   const { sendTransactionAsync, isPending } = useSendTransaction();
+  const { writeContractAsync, isPending: isPendingUsdc } = useWriteContract();
   const [err, setErr] = useState<string | null>(null);
+  const usdcAddress = (process.env.NEXT_PUBLIC_USDC_TOKEN_ADDRESS || "") as
+    | `0x${string}`
+    | "";
+  const erc20Abi = [
+    {
+      type: "function",
+      name: "transfer",
+      stateMutability: "nonpayable",
+      inputs: [
+        { name: "to", type: "address" },
+        { name: "amount", type: "uint256" },
+      ],
+      outputs: [{ name: "", type: "bool" }],
+    },
+  ] as const;
 
   return (
     <div className="border border-white/10 rounded p-3 bg-white/5 space-y-2">
@@ -283,6 +299,49 @@ function Paywall({
       >
         Pay to unlock
       </button>
+      {usdcAddress && (
+        <button
+          className="rounded px-3 py-2 text-sm border hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
+          disabled={!isConnected || isPendingUsdc}
+          onClick={async () => {
+            if (!address) return;
+            setErr(null);
+            try {
+              const decimals = 6; // USDC
+              const amtNum = parseFloat(String(priceEth || "0.001")) || 0.001;
+              const amount = BigInt(Math.round(amtNum * 10 ** decimals));
+              const tx = await writeContractAsync({
+                address: usdcAddress,
+                abi: erc20Abi,
+                functionName: "transfer",
+                args: [seller as `0x${string}`, amount],
+              });
+              await fetch(`/api/tips`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  messageId,
+                  to: seller,
+                  from: address,
+                  amount: String(amtNum),
+                  token: "USDC",
+                  txHash: tx,
+                  chainId: 84532,
+                }),
+              });
+              onPurchased();
+              const evt = new CustomEvent("tips-updated", {
+                detail: { messageId },
+              });
+              window.dispatchEvent(evt);
+            } catch (e: any) {
+              setErr(e?.message || "Payment failed");
+            }
+          }}
+        >
+          Pay with USDC
+        </button>
+      )}
       {err && <p className="text-xs opacity-80">{err}</p>}
     </div>
   );

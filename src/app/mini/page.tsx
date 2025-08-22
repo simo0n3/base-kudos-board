@@ -17,9 +17,44 @@ export default function MiniPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isPaid, setIsPaid] = useState(false);
   const [priceEth, setPriceEth] = useState<string>("0.001");
+  const [miniReady, setMiniReady] = useState(false);
+  const [mini, setMini] = useState<any>(null);
 
   const { disconnect, connectors } = useDisconnect();
   // Editor page only; not displaying others' posts
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const mod: any = await import("@farcaster/miniapp-sdk");
+        const MiniApp = (mod as any)?.MiniApp || (mod as any)?.default || mod;
+        if (MiniApp?.ready) {
+          MiniApp.ready();
+          setMini(MiniApp);
+          setMiniReady(true);
+        }
+      } catch {}
+    })();
+  }, []);
+
+  async function shareMini() {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    const titleText = "Kudos Tribe";
+    try {
+      if (mini?.actions?.share) {
+        await mini.actions.share({ title: titleText, url });
+        return;
+      }
+    } catch {}
+    try {
+      if ((navigator as any)?.share) {
+        await (navigator as any).share({ title: titleText, url });
+      } else if (navigator?.clipboard) {
+        await navigator.clipboard.writeText(url);
+        setResult("Link copied");
+      }
+    } catch {}
+  }
 
   async function submitMessage(signature: string) {
     if (!address) return;
@@ -76,6 +111,13 @@ export default function MiniPage() {
         </div>
         <div className="flex items-center gap-2">
           <ConnectWallet />
+          <button
+            className="border rounded px-2 py-1 text-xs"
+            onClick={shareMini}
+            disabled={!miniReady}
+          >
+            Share
+          </button>
           {isConnected && (
             <button
               className="border rounded px-2 py-1 text-xs"

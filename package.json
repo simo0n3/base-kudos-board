@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@coinbase/onchainkit": "^0.38.19",
+    "@farcaster/miniapp-sdk": "^0.7.0",
     "@supabase/supabase-js": "^2.55.0",
     "@tanstack/react-query": "^5.85.5",
     "next": "15.5.0",
